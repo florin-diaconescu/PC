@@ -1,0 +1,32 @@
+Diaconescu Florin, grupa 312CB, florin.diaconescu
+
+Implementarea aleasa pentru task1 este una simpla, in care afisez caracterul citit de la tastatura 
+daca pozitia sa se afla deasupra diagonalei principale intr-o "matrice" imaginara, iar in caz contrar
+afisand spatiu.
+
+Pentru task-urile 2 si 3 (jocul pacman), am gandit rezolvarea in modul urmator:
+-am nevoie de o functie pentru afisarea tablei de joc, avand ca parametri coordonatele punctului,
+dimensiunile matricei, caracterul de deplasare (^v<>) si vectorii in care stochez coordonatele 
+obstacolelor
+-citesc datele initiale de la tastatura iar apoi, in functie de alegerea personajului, trebuie sa 
+implementez cate o functie pentru fiecare directie in care se poate deplasa acesta. Am ales astfel
+sa modularizez pe cat posibil programul, pentru a fi mai usor de citit si inteles
+-dupa deplasare, verific daca jocul s-a terminat (fie cu succes, fie cu eroare), iar, daca nu, se 
+poate trece la afisarea tablei si pasul urmator
+
+In declararea parametrilor formali din cadrul antetului functiilor, folosesc pointeri pentru 
+posibilitatea de a modifica valoarea variabilei corespunzatoare (daca am nevoie de asta), iar pentru
+stocarea coordonatelor obstacolelor mobile folosesc 3 vectori mici, de 4 elemente, pentru usurinta 
+intelegerii si reducerea numarului de linii de cod si de parametri folositi. Tocmai din acest motiv
+nu am apelat la tipul struct sau 9 variabile pentru obstacole, intrucat consider ca xObs[1], yObs[1] 
+si type[1] sunt suficient de sugestive pentru a observa usor ca e vorba despre coordonatele si tipul
+obstacolului 1. Memoria sau timpul de executie al programului nu ar fi fost modificate cu o alta 
+abordare pentru obstacole (sau acea diferenta era neglijabila), asa ca am ales cea mai usor de citit
+abordare.
+
+Consider ca restul codului este destul de straightforward, intrucat am comentat portiunile de cod mai
+dificil de inteles, iar intrucat dificultatea problemelor nu a fost una foarte ridicata, nu pot vorbi 
+de alte alegeri in legatura cu optimizarea facute in cadrul programului meu, alegand o rezolvare clara.
+Numele variabilelor sunt sugestive, avand fie semnificatia din problema, fie au fost comentate in sursa.
+
+Am folosit un coding style cat mai curat, iar dimensiunea liniilor a fost tinuta sub 80 de caractere.
