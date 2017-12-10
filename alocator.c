@@ -60,6 +60,7 @@ int ALLOC(int size){
 		*((int *)(Arena + 8)) = size;
 		startIndex = 0;
 		
+		sumAlloc += size;
 		numBlocks++;
 		printf("12\n");
 		return (12);
@@ -69,9 +70,9 @@ int ALLOC(int size){
 		*((int *)(Arena)) = startIndex;
 		*((int *)(Arena + 4)) = 0;
 		*((int *)(Arena + 8)) = size;
-		*((int *)(*((int *)(Arena + i)))) = 0;
 		startIndex = 0;
 
+		sumAlloc += size;
 		numBlocks++;
 		printf("12\n");
 		return (12);
@@ -94,6 +95,8 @@ int ALLOC(int size){
 				*((int *)(Arena + nextBlock)) = currentBlock;
 				*((int *)(Arena + nextBlock + 4)) = currentIndex;
 				*((int *)(Arena + nextBlock + 8)) = size;
+
+				sumAlloc += size;
 				numBlocks++; 
 				printf("%d\n", nextBlock + 12);
 				return (nextBlock + 12);
@@ -106,6 +109,8 @@ int ALLOC(int size){
 			*((int *)(nextBlock + 8)) = size + 12;
 			*((int *)(currentBlock + 4)) = nextBlock;
 			*((int *)(i)) = nextBlock;
+
+			sumAlloc += size;
 			numBlocks++;
 			printf("%d\n", nextBlock + 12);
 			return (nextBlock + 12);
@@ -127,18 +132,27 @@ int FREE(int index){
 
 	if (numBlocks == 1){
 		memset(Arena + index - 4, 0, size);
+
+		sumAlloc -= size;
 		numBlocks --;
 		return size;
 	}
 
-	memset(Arena + index - 8, 0, 4);
-	memset(Arena + index - 8, 0, 4);
-	memset(Arena + index - 4, 0, size);
+	//memset(Arena + index - 12, 0, size + 12);
+	//memset(Arena + index - 8, 0, 4);
+	//memset(Arena + index - 4, 0, size);
 	*((int *)(Arena + previousIndex)) = nextIndex;
 
 	if (nextIndex)
-		*((int *)(Arena + nextIndex - 4)) = previousIndex;
-	
+		*((int *)(Arena + nextIndex + 4)) = previousIndex;
+
+	if (index == 12) 
+		startIndex = nextIndex;
+	//printf("Start index:%d\n", startIndex);
+
+	sumAlloc -= size;
+	memset(Arena + index - 12, 0, size + 12);
+	numBlocks--;
 	return size;
 }
 
@@ -189,7 +203,7 @@ void parse_command(char* cmd)
             goto invalid_command;
         }
         int size = atoi(size_str);
-        sumAlloc += ALLOC(size);
+				ALLOC(size);
 
     } else if (strcmp(cmd_name, "FREE") == 0) {
         char* index_str = strtok(NULL, delims);
@@ -197,7 +211,7 @@ void parse_command(char* cmd)
             goto invalid_command;
         }
         int index = atoi(index_str);
-        sumAlloc -= FREE(index);
+        FREE(index);
 
     } else if (strcmp(cmd_name, "FILL") == 0) {
         char* index_str = strtok(NULL, delims);
