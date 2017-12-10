@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 
-int Arena_size, startIndex, numBlocks;
+int Arena_size, startIndex, numBlocks, sumAlloc;
 unsigned char *Arena;
 
 void changeValue(int index, int value){
@@ -84,7 +84,7 @@ int ALLOC(int size){
 		nextBlock = nextBlock + *((int *)(Arena + currentIndex + 8)) + 12;
 		//printf("Current block: %d\nNext block: %d\n", currentBlock, nextBlock);
 		if (!currentBlock){
-			if (Arena_size - currentBlock < size + 12){
+			if (Arena_size - nextBlock < size + 12){
 				printf("0\n");
 				return 0;
 			}
@@ -99,7 +99,7 @@ int ALLOC(int size){
 				return (nextBlock + 12);
 			}
 		}
-
+//* MODIFICA ASTA!!! *//
 		if (currentBlock - nextBlock >= size + 12){
 			*((int *)(nextBlock)) = *((int *)(Arena + i));
 			*((int *)(nextBlock + 4)) = i;
@@ -110,6 +110,7 @@ int ALLOC(int size){
 			printf("%d\n", nextBlock + 12);
 			return (nextBlock + 12);
 		}	
+//* MODIFICA ASTA!!! *//
 
 		currentIndex = nextBlock;
 		//printf("Current index: %d\n", currentIndex);
@@ -117,8 +118,46 @@ int ALLOC(int size){
 	
 }
 
+int FREE(int index){
+	int size, nextIndex, previousIndex;
+	
+	nextIndex = *((int *)(Arena + index - 12));
+	previousIndex = *((int *)(Arena + index - 8));
+	size = *((int *)(Arena + index - 4));
+
+	if (numBlocks == 1){
+		memset(Arena + index - 4, 0, size);
+		numBlocks --;
+		return size;
+	}
+
+	memset(Arena + index - 8, 0, 4);
+	memset(Arena + index - 8, 0, 4);
+	memset(Arena + index - 4, 0, size);
+	*((int *)(Arena + previousIndex)) = nextIndex;
+
+	if (nextIndex)
+		*((int *)(Arena + nextIndex - 4)) = previousIndex;
+	
+	return size;
+}
+
 void FILL(int index, int size, int value){
-	memset(Arena + index, value, size);
+	int i, currentIndex, subSize, sizeSum = 0;
+
+	if (sumAlloc > size)
+		memset(Arena + index, value, size);
+
+	else{
+		currentIndex = startIndex;
+		for (i = 0; i < numBlocks; i++){
+			subSize = *((int *)(Arena + currentIndex + 8));
+			sizeSum += subSize;
+			if (sizeSum <= size)
+				memset(Arena + currentIndex + 12, value, subSize);
+			currentIndex += 12 + subSize;
+		}
+	}
 }
 
 void parse_command(char* cmd)
@@ -150,7 +189,7 @@ void parse_command(char* cmd)
             goto invalid_command;
         }
         int size = atoi(size_str);
-        ALLOC(size);
+        sumAlloc += ALLOC(size);
 
     } else if (strcmp(cmd_name, "FREE") == 0) {
         char* index_str = strtok(NULL, delims);
@@ -158,7 +197,7 @@ void parse_command(char* cmd)
             goto invalid_command;
         }
         int index = atoi(index_str);
-        // TODO - FREE
+        sumAlloc -= FREE(index);
 
     } else if (strcmp(cmd_name, "FILL") == 0) {
         char* index_str = strtok(NULL, delims);
