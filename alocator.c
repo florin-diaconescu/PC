@@ -6,11 +6,6 @@
 int Arena_size, startIndex, numBlocks, sumAlloc;
 unsigned char *Arena;
 
-void changeValue(int index, int value){
-	int *curent = (int*)(Arena + index);
-	*curent = value;
-}
-
 void INITIALIZE(int size){
 	Arena_size = size;
 	Arena = calloc(size, sizeof(unsigned char));
@@ -47,7 +42,7 @@ void DUMP(){
 }
 
 int ALLOC(int size){
-	int i, j, currentBlock, nextBlock, currentIndex;
+	int i, j, currentBlock, nextBlock = 0, currentIndex;
 
 	if (numBlocks == 0){
 		if (Arena_size < size + 12){
@@ -83,7 +78,7 @@ int ALLOC(int size){
 	for (i = 0; i < numBlocks; i++){
 		currentBlock = *((int *)(Arena + currentIndex));
 		nextBlock = nextBlock + *((int *)(Arena + currentIndex + 8)) + 12;
-		//printf("Current block: %d\nNext block: %d\n", currentBlock, nextBlock);
+		//printf("Current block: %d\nNext block: %d\nDIF: %d\n", currentBlock, nextBlock, currentBlock - nextBlock - *((int *)(Arena + currentIndex)));
 		if (!currentBlock){
 			if (Arena_size - nextBlock < size + 12){
 				printf("0\n");
@@ -102,20 +97,19 @@ int ALLOC(int size){
 				return (nextBlock + 12);
 			}
 		}
-//* MODIFICA ASTA!!! *//
+
 		if (currentBlock - nextBlock >= size + 12){
-			*((int *)(nextBlock)) = *((int *)(Arena + i));
-			*((int *)(nextBlock + 4)) = i;
-			*((int *)(nextBlock + 8)) = size + 12;
-			*((int *)(currentBlock + 4)) = nextBlock;
-			*((int *)(i)) = nextBlock;
+			printf("DIF: %d\n", currentBlock - nextBlock);
+			*((int *)(Arena + currentIndex)) = nextBlock;
+			*((int *)(Arena + nextBlock)) = currentBlock;
+			*((int *)(Arena + nextBlock + 4)) = currentIndex;
+			*((int *)(Arena + nextBlock + 8)) = size;
 
 			sumAlloc += size;
 			numBlocks++;
 			printf("%d\n", nextBlock + 12);
 			return (nextBlock + 12);
 		}	
-//* MODIFICA ASTA!!! *//
 
 		currentIndex = nextBlock;
 		//printf("Current index: %d\n", currentIndex);
@@ -138,12 +132,9 @@ int FREE(int index){
 		return size;
 	}
 
-	//memset(Arena + index - 12, 0, size + 12);
-	//memset(Arena + index - 8, 0, 4);
-	//memset(Arena + index - 4, 0, size);
 	*((int *)(Arena + previousIndex)) = nextIndex;
 
-	if (nextIndex)
+	//if (nextIndex)
 		*((int *)(Arena + nextIndex + 4)) = previousIndex;
 
 	if (index == 12) 
