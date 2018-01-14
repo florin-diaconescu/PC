@@ -62,60 +62,201 @@ void DumpBMP(char *task_name, FileHeader *fileh, InfoHeader *infoh, unsigned cha
 	fclose(out);
 }
 
+int check0(unsigned char **Map, int i, int j){
+	if (((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
+	((Map[i + 1][j] != 255) || (Map[i + 1][j + 1] != 255) || (Map[i + 1][j + 2] != 255)) &&
+	((Map[i][j + 3] != 255) || (Map[i][j + 4] != 255) || (Map[i][j + 5] != 255)) &&
+	((Map[i][j + 12] != 255) || (Map[i][j + 13] != 255) || (Map[i][j + 14] != 255)) &&
+	((Map[i + 2][j + 3] == 255) && (Map[i + 2][j + 4] == 255) && (Map[i + 3][j + 5] == 255)) &&
+	((Map[i + 4][j] != 255) || (Map[i + 4][j + 1] != 255) || (Map[i + 4][j + 2] != 255)) &&
+	((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 4][j + 14] != 255)))
+		return 1;
+
+	return 0;
+}
+
+int check1(unsigned char **Map, int i, int j){
+	if (((Map[i][j] == 255) && (Map[i][j + 1] == 255) && (Map[i][j + 2] == 255)) &&
+	((Map[i + 4][j] == 255) && (Map[i + 4][j + 1] == 255) && (Map[i + 4][j + 2] == 255)) &&
+	((Map[i][j + 12] != 255) || (Map[i][j + 13] != 255) || (Map[i][j + 14] != 255)) &&
+	((Map[i + 2][j + 12] != 255) || (Map[i + 2][j + 13] != 255) || (Map[i + 2][j + 14] != 255)) &&
+	((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 4][j + 14] != 255)) &&
+	((Map[i][j + 15] == 255) && (Map[i][j + 16] == 255) && (Map[i][j + 17] == 255)) &&
+	((Map[i][j + 9] == 255) && (Map[i][j + 10] == 255) && (Map[i][j + 11] == 255)) &&
+	((Map[i + 1][j + 12] != 255) || (Map[i + 1][j + 13] != 255) || (Map[i + 1][j + 14] != 255)) &&
+	((Map[i][j + 4] == 255) && (Map[i][j + 5] == 255) && (Map[i][j + 6] == 255)) &&
+	((Map[i + 2][j + 6] == 255) && (Map[i + 2][j + 7] == 255) && (Map[i + 2][j + 8] == 255)) &&
+	((Map[i + 3][j + 12] != 255) || (Map[i + 3][j + 13] != 255) || (Map[i + 3][j + 14] != 255)))
+			return 1;
+
+	return 0;
+}
+
+int check2(unsigned char **Map, int i, int j){
+	if (((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
+	((Map[i][j + 3] != 255) || (Map[i][j + 4] != 255) || (Map[i][j + 5] != 255)) &&
+  ((Map[i][j + 12] != 255) || (Map[i][j + 13] != 255) || (Map[i][j + 14] != 255)) &&
+	((Map[i + 1][j] == 255) && (Map[i + 1][j + 1] == 255) && (Map[i + 1][j + 2] == 255)) &&
+	((Map[i + 2][j + 6] != 255) || (Map[i + 2][j + 7] != 255) || (Map[i + 2][j + 8] != 255)) &&
+	((Map[i + 3][j] != 255) || (Map[i + 3][j + 1] != 255) || (Map[i + 3][j + 2] != 255)) &&
+	((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 5][j + 14] != 255)))
+		return 1;
+
+	return 0;
+}
+
+int check3(unsigned char **Map, int i, int j){
+	if (((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
+	((Map[i][j + 3] != 255) || (Map[i][j + 4] != 255) || (Map[i][j + 5] != 255)) &&
+	((Map[i][j + 12] != 255) || (Map[i][j + 13] != 255) || (Map[i][j + 14] != 255)) &&
+	((Map[i + 1][j] == 255) && (Map[i + 1][j + 1] == 255) && (Map[i + 1][j + 2] == 255)) &&
+	((Map[i + 2][j] != 255) || (Map[i + 2][j + 1] != 255) || (Map[i + 2][j + 2] != 255)) &&
+  ((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 4][j + 14] != 255)) &&
+	((Map[i + 2][j + 6] != 255) || (Map[i + 2][j + 7] != 255) || (Map[i + 2][j + 8] != 255)) &&
+	((Map[i + 2][j + 9] != 255) || (Map[i + 2][j + 10] != 255) || (Map[i + 2][j + 11] != 255)))
+		return 1;
+
+	return 0;
+}
+
+int check4(unsigned char **Map, int i, int j){
+	if (((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
+	((Map[i][j + 3] == 255) && (Map[i][j + 4] == 255) && (Map[i][j + 5] == 255)) &&
+	((Map[i][j + 12] != 255) || (Map[i][j + 13] != 255) || (Map[i][j + 14] != 255)) &&
+	((Map[i + 1][j] != 255) || (Map[i + 1][j + 1] != 255) || (Map[i + 1][j + 2] != 255)) &&
+  ((Map[i + 2][j] != 255) || (Map[i + 2][j + 1] != 255) || (Map[i + 2][j + 2] != 255)) &&
+	((Map[i + 2][j + 6] != 255) || (Map[i + 2][j + 7] != 255) || (Map[i + 2][j + 8] != 255)) &&
+  ((Map[i + 2][j + 9] != 255) || (Map[i + 2][j + 10] != 255) || (Map[i + 2][j + 11] != 255)) &&
+  ((Map[i + 1][j + 12] != 255) || (Map[i + 1][j + 13] != 255) || (Map[i + 1][j + 14] != 255)) &&
+  ((Map[i + 2][j + 12] != 255) || (Map[i + 2][j + 13] != 255) || (Map[i + 2][j + 14] != 255)) &&
+  ((Map[i + 3][j + 12] != 255) || (Map[i + 3][j + 13] != 255) || (Map[i + 3][j + 14] != 255)) &&
+  ((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 4][j + 14] != 255)))
+		return 1;
+
+	return 0;
+}
+
+int check5(unsigned char **Map, int i, int j){
+	if (((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
+	((Map[i][j + 3] != 255) || (Map[i][j + 4] != 255) || (Map[i][j + 5] != 255)) &&
+  ((Map[i][j + 12] != 255) || (Map[i][j + 13] != 255) || (Map[i][j + 14] != 255)) &&	
+	((Map[i + 1][j] != 255) || (Map[i + 1][j + 1] != 255) || (Map[i + 1][j + 2] != 255)) &&
+	((Map[i + 1][j + 12] == 255) && (Map[i + 1][j + 13] == 255) && (Map[i + 1][j + 14] == 255)) &&
+	((Map[i + 3][j] == 255) && (Map[i + 3][j + 1] == 255) && (Map[i + 3][j + 2] == 255)) &&
+	((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 4][j + 14] != 255)))
+		return 1;
+
+	return 0;
+}
+
+int check6(unsigned char **Map, int i, int j){
+  if (((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
+  ((Map[i][j + 3] != 255) || (Map[i][j + 4] != 255) || (Map[i][j + 5] != 255)) &&
+  ((Map[i][j + 12] != 255) || (Map[i][j + 13] != 255) || (Map[i][j + 14] != 255)) &&
+  ((Map[i + 1][j] != 255) || (Map[i + 1][j + 1] != 255) || (Map[i + 1][j + 2] != 255)) &&
+  ((Map[i + 1][j + 12] == 255) && (Map[i + 1][j + 13] == 255) && (Map[i + 1][j + 14] == 255)) &&
+  ((Map[i + 3][j] != 255) || (Map[i + 3][j + 1] != 255) || (Map[i + 3][j + 2] != 255)) &&
+  ((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 4][j + 14] != 255)))
+		return 1;
+
+	return 0;
+}
+
+int check7(unsigned char **Map, int i, int j){
+	if (((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
+  ((Map[i][j + 3] != 255) || (Map[i][j + 4] != 255) || (Map[i][j + 5] != 255)) &&
+	((Map[i][j + 9] != 255) || (Map[i][j + 10] != 255) || (Map[i][j + 11] != 255)) &&
+	((Map[i][j + 12] != 255) || (Map[i][j + 13] != 255) || (Map[i][j + 14] != 255)) &&
+	((Map[i + 1][j] == 255) && (Map[i + 1][j + 1] == 255) && (Map[i + 1][j + 2] == 255)) &&
+	((Map[i + 2][j + 9] == 255) && (Map[i + 2][j + 10] == 255) && (Map[i + 2][j + 11] == 255)) &&
+	((Map[i + 2][j + 12] != 255) || (Map[i + 2][j + 13] != 255) || (Map[i + 2][j + 14] != 255)) &&
+	((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 4][j + 14] != 255)))
+		return 1;
+
+	return 0;
+}
+
+int check8(unsigned char **Map, int i, int j){
+	if (((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
+	((Map[i][j + 3] != 255) || (Map[i][j + 4] != 255) || (Map[i][j + 5] != 255)) &&
+	((Map[i][j + 12] != 255) || (Map[i][j + 13] != 255) || (Map[i][j + 14] != 255)) &&
+	((Map[i + 1][j] != 255) || (Map[i + 1][j + 1] != 255) || (Map[i + 1][j + 2] != 255)) &&
+	((Map[i + 2][j] != 255) || (Map[i + 2][j + 1] != 255) || (Map[i + 2][j + 2] != 255)) &&
+	((Map[i + 2][j + 3] != 255) || (Map[i + 2][j + 4] != 255) || (Map[i + 2][j + 5] != 255)) &&
+	((Map[i + 2][j + 12] != 255) || (Map[i + 2][j + 13] != 255) || (Map[i + 2][j + 14] != 255)) &&
+	((Map[i + 3][j] != 255) || (Map[i + 3][j + 1] != 255) || (Map[i + 3][j + 2] != 255)) &&
+	((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 4][j + 14] != 255)))
+		return 1;
+
+	return 0;
+}
+
+int check9(unsigned char **Map, int i, int j){
+	if (((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
+	((Map[i][j + 3] != 255) || (Map[i][j + 4] != 255) || (Map[i][j + 5] != 255)) &&
+	((Map[i][j + 12] != 255) || (Map[i][j + 13] != 255) || (Map[i][j + 14] != 255)) &&
+	((Map[i + 1][j] != 255) || (Map[i + 1][j + 1] != 255) || (Map[i + 1][j + 2] != 255)) &&
+	((Map[i + 2][j] != 255) || (Map[i + 2][j + 1] != 255) || (Map[i + 2][j + 2] != 255)) &&
+	((Map[i + 2][j + 3] != 255) || (Map[i + 2][j + 4] != 255) || (Map[i + 2][j + 5] != 255)) &&
+	((Map[i + 2][j + 12] != 255) || (Map[i + 2][j + 13] != 255) || (Map[i + 2][j + 14] != 255)) &&
+	((Map[i + 3][j] == 255) && (Map[i + 3][j + 1] == 255) && (Map[i + 3][j + 2] == 255)) &&
+	((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 4][j + 14] != 255)))
+		return 1;
+
+	return 0;
+}
+
 void solveCaptcha(char *task_name, FileHeader *fileh, InfoHeader *infoh, unsigned char **Map){
 	FILE *out = fopen(task_name, "w");
 	if (!out) exit(1);
-	
-	int i, j, padding;
 
-	padding = infoh->width % 4;
+	int i, j;
 
-	for (j = 0; j < 3 * infoh->width; j += 3){
+	for (j = 0; j < 3 * infoh->width - 14; j += 3){
 		for (i = 0; i < infoh->height - 4; i++){
-			if (((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
-			((Map[i + 4][j + 12] != 255) || (Map[i + 4][j + 13] != 255) || (Map[i + 4][j + 14] != 255))){
-				if ((Map[i][j + 3] != 255) || (Map[i][j + 4] != 255) || (Map[i][j + 5] != 255)){
-					if ((Map[i + 1][j] != 255) || (Map[i + 1][j + 1] != 255) || (Map[i + 1][j + 2] != 255)){
-						if ((Map[i + 2][j + 3] != 255) || (Map[i + 2][j + 4] != 255) || (Map[i + 2][j + 5] != 255)){
-							if ((Map[i + 3][j] != 255) || (Map[i + 3][j + 1] != 255) || (Map[i + 3][j + 2] != 255)){
-								if ((Map[i + 2][j + 12] != 255) || (Map[i + 2][j + 13] != 255) || (Map[i + 2][j + 14] != 255)){
-									fprintf(out, "8");
-								}
-								else fprintf(out, "6");
-							}
-							else{//5 sau 9
-								if ((Map[i + 2][j + 12] != 255) || (Map[i + 2][j + 13] != 255) || (Map[i + 2][j + 14] != 255)){
-									fprintf(out, "5");
-								}
-								else fprintf(out, "9");
-							}
-						}
-						else fprintf(out, "0");
-					}
-					//daca pixelul de sub e 0, poate sa fie 2, 3 sau 7
-					else{
-						if ((Map[i + 3][j] != 255) || (Map[i + 3][j + 1] != 255) || (Map[i + 3][j + 2] != 255)){
-							fprintf(out, "2");
-						}
-						else {//3 sau 7
-							if ((Map[i + 2][j] != 255) || (Map[i + 2][j + 1] != 255) || (Map[i + 2][j + 2] != 255)){
-								fprintf(out, "3");
-							}
-							else fprintf(out, "7");
-						}
-					}
-				}
-				if ((Map[i + 2][j + 9] != 255) || (Map[i + 2][j + 10] != 255) || (Map[i + 3][j + 11] != 255)) 
-					fprintf(out, "4");
+			if (check0(Map, i, j)) {
+				fprintf(out, "0");
+				break;
 			}
-			if ((j >3) && ((Map[i][j] != 255) || (Map[i][j + 1] != 255) || (Map[i][j + 2] != 255)) &&
-			((Map[i + 4][j] != 255) || (Map[i + 4][j + 1] != 255) || (Map[i + 4][j + 2] != 255)) &&
-			((Map[i][j + 3] == 255) && (Map[i][j + 4] == 255) && (Map[i][j + 5] == 255)) &&
-			((Map[i][j - 3] == 255) && (Map[i][j - 2] == 255) && (Map[i][j - 1] == 255)))
-				fprintf(out,"1");
-		}
+			else if (check1(Map, i, j)){
+				fprintf(out, "1");
+				break;
+			}
+			else if (check2(Map, i, j)){
+				fprintf(out, "2");
+				break;
+			}
+			else if (check3(Map, i, j)){
+				fprintf(out, "3");
+				break;
+			}
+			else if (check4(Map, i, j)){
+				fprintf(out, "4");
+				break;
+			}
+			else if (check5(Map, i, j)){
+				fprintf(out, "5");
+				break;
+			}
+			else if (check6(Map, i, j)){
+				fprintf(out, "6");
+				break;
+			}
+			else if (check7(Map, i, j)){
+				fprintf(out, "7");
+				break;
+			}
+			else if (check8(Map, i, j)){
+				fprintf(out, "8");
+				break;
+			}
+			else if (check9(Map, i, j)){
+				fprintf(out, "9");
+				break;
+			}
+		}	
 	}
-	
+
 	fclose(out);
 }
 
