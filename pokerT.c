@@ -29,9 +29,10 @@ TLista AlocCelula(void* x, size_t d){
 }
 
 Sala ReadCFG(FILE* config){
-    Sala S = (Sala) malloc(sizeof(struct sala));
+    Sala S = (Sala) calloc(1, sizeof(struct sala));
     if (!S) return NULL;
 
+    TLista p = NULL, aux = NULL, inc = NULL;
     Masa M = NULL;
     Jucator J = NULL;
     int i, j;
@@ -42,10 +43,10 @@ Sala ReadCFG(FILE* config){
     S->nrLocMax = 0;
 
     for (i = 0; i < S->nrMese; i++){
-      M = (Masa) malloc(sizeof(struct masa));
+      M = (Masa) calloc(1, sizeof(struct masa));
       if (!M) return NULL;
 
-      M->numeMasa = (char*) malloc(NMAX);
+      M->numeMasa = (char*) calloc(1, NMAX);
       if (!M->numeMasa){
         free(M);
         return NULL;
@@ -54,34 +55,49 @@ Sala ReadCFG(FILE* config){
       fscanf(config, "%s %d %d", M->numeMasa, &M->nrCrtJucatori, &M->nrMaxJucatori);
       S->nrLocCrt += M->nrCrtJucatori;
       S->nrLocMax += M->nrMaxJucatori;
-
-      if (S->masa == NULL)
-        S->masa = AlocCelula((void*) M, sizeof(struct masa));
-      else
-        S->masa->urm = AlocCelula((void*) M, sizeof(struct masa));
-
       M->jucatori = InitL();
 
+      if (S->masa == NULL){
+        S->masa = AlocCelula((void*) M, sizeof(struct masa));
+        p = S->masa;
+      }
+      else{
+        aux = AlocCelula((void*) M, sizeof(struct masa));
+        p = aux;
+      }
+
+      inc = M->jucatori;
+
       for (j = 0; j < M->nrCrtJucatori; j++){
-        J = (Jucator) malloc(sizeof(struct jucator));
+        J = (Jucator) calloc(1, sizeof(struct jucator));
+        if (!J) return NULL;
+
+        J->nume = (char*) calloc(1, NMAX);
+//elibereaza in caz de nereusire alocare !!!
+
         fscanf(config, "%s %d", J->nume, &J->nrMaini);
-        M->jucatori->urm = AlocCelula((void*) J, sizeof(struct jucator));
+        aux = AlocCelula((void*) J, sizeof(struct jucator));
+        M->jucatori->urm = aux;
+        aux->urm = inc;
+        M->jucatori = M->jucatori->urm;
       }
     }
-
     return S;
 }
 
 void AfiJucator(void* x, FILE* out){
   Jucator J;
-  J = (Jucator) x;
-  fprintf(out, "%s - %d;", J->nume, J->nrMaini);
+  J = (Jucator)x;
+  fprintf(out, "%s - %d", J->nume, J->nrMaini);
 }
 
 void AfiLista(TLista L, void (*fafi)(void*, FILE*), FILE* out){
   TLista inc = L->urm;
+
   while (inc != L){
-    fafi((void*) inc->info, out);
+    fafi(inc->info, out);
+    if (inc->urm != L)
+      fprintf(out,"; ");
     inc = inc->urm;
   }
 }
@@ -90,8 +106,9 @@ void afisareSala(Sala S, FILE* out){
   int i;
   Masa M;
 
-  for (i = 0; i < S->nrMese; i++){
+  for (i = 0; i < S->nrMese -1; i++){
     M = (Masa)S->masa->info;
+    //printf("%s",((Jucator)(M->jucatori->urm->info))->nume);
     fprintf(out, "%s: ", M->numeMasa);
     AfiLista(M->jucatori, AfiJucator, out);
     fprintf(out, ".\n");
@@ -145,7 +162,8 @@ int main(int argc, char* argv[]){
   Sala S = (Sala) malloc(sizeof(Sala));
 
   S = ReadCFG(config);
-
+  //Masa M = (Masa)(S->masa->urm->urm->info);
+  //printf("%s", M->numeMasa);
   while ((read = getline(&line, &len, events)) != -1){
     parseCommand(line, S, out);
   }
