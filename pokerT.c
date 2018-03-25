@@ -57,13 +57,14 @@ Sala ReadCFG(FILE* config){
       S->nrLocMax += M->nrMaxJucatori;
       M->jucatori = InitL();
 
-      if (S->masa == NULL){
+      if (i == 0){
         S->masa = AlocCelula((void*) M, sizeof(struct masa));
         p = S->masa;
       }
       else{
         aux = AlocCelula((void*) M, sizeof(struct masa));
-        p = aux;
+        p->urm = aux;
+        p = p->urm;
       }
 
       inc = M->jucatori;
@@ -82,6 +83,7 @@ Sala ReadCFG(FILE* config){
         M->jucatori = M->jucatori->urm;
       }
     }
+
     return S;
 }
 
@@ -106,9 +108,8 @@ void afisareSala(Sala S, FILE* out){
   int i;
   Masa M;
 
-  for (i = 0; i < S->nrMese -1; i++){
+  for (i = 0; i < S->nrMese; i++){
     M = (Masa)S->masa->info;
-    //printf("%s",((Jucator)(M->jucatori->urm->info))->nume);
     fprintf(out, "%s: ", M->numeMasa);
     AfiLista(M->jucatori, AfiJucator, out);
     fprintf(out, ".\n");
@@ -162,8 +163,7 @@ int main(int argc, char* argv[]){
   Sala S = (Sala) malloc(sizeof(Sala));
 
   S = ReadCFG(config);
-  //Masa M = (Masa)(S->masa->urm->urm->info);
-  //printf("%s", M->numeMasa);
+
   while ((read = getline(&line, &len, events)) != -1){
     parseCommand(line, S, out);
   }
