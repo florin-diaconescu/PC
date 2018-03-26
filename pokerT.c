@@ -107,14 +107,81 @@ void AfiLista(TLista L, void (*fafi)(void*, FILE*), FILE* out){
 void afisareSala(Sala S, FILE* out){
   int i;
   Masa M;
+  TLista L = S->masa; //
 
   for (i = 0; i < S->nrMese; i++){
-    M = (Masa)S->masa->info;
+    M = (Masa)L->info; //M = (Masa)S->masa->info;
     fprintf(out, "%s: ", M->numeMasa);
     AfiLista(M->jucatori, AfiJucator, out);
     fprintf(out, ".\n");
-    S->masa = S->masa->urm;
+    L = L->urm;
   }
+}
+
+//returneaza adresa mesei cautate sau NULL in caz ca nu o gaseste
+Masa findTable(Sala S, char* x){
+  Masa aux = NULL;
+  TLista L = S->masa;
+  char* tableName = NULL;
+
+  for(; L != NULL; L = L->urm){
+    tableName = ((Masa)(L->info))->numeMasa;
+    if (strcmp(tableName, x) == 0){
+      aux = (Masa)(L->info);
+      break;
+    }
+  }
+
+  return aux;
+}
+
+Jucator findPlayer(Masa M, char* x){
+  Jucator aux = NULL;
+  TLista L = M->jucatori;
+  TLista inc = L;
+  char* name = NULL;
+
+  for (L = L->urm; L != inc; L = L->urm){
+    name = ((Jucator)(L->info))->nume;
+    if (strcmp(name, x) == 0){
+      aux = (Jucator)(L->info);
+      break;
+    }
+  }
+
+  return aux;
+}
+
+void noroc(Sala S, char* table, char* name, int value, FILE* out){
+  Masa M = findTable(S, table);
+  if (M == NULL){
+    fprintf(out, "Masa %s nu exista!\n", table);
+    exit(1);
+  }
+
+  Jucator J = findPlayer(M, name);
+  if (J == NULL){
+    fprintf(out, "Jucatorul %s nu exista la masa %s!\n", name, table);
+    exit(1);
+  }
+
+  J->nrMaini += value;
+}
+
+void ghinion(Sala S, char* table, char* name, int value, FILE* out){
+  Masa M = findTable(S, table);
+  if (M == NULL){
+    fprintf(out, "Masa %s nu exista!\n", table);
+    exit(1);
+  }
+
+  Jucator J = findPlayer(M, name);
+  if (J == NULL){
+    fprintf(out, "Jucatorul %s nu exista la masa %s!\n", name, table);
+    exit(1);
+  }
+
+  J->nrMaini -= value;
 }
 
 void parseCommand(char* cmd, Sala S, FILE* out){
@@ -127,6 +194,38 @@ void parseCommand(char* cmd, Sala S, FILE* out){
 
   if (strcmp(cmd_name, "print") == 0){
     afisareSala(S, out);
+  }
+  else if (strcmp(cmd_name, "noroc") == 0){
+    char* table_str = strtok(NULL, delims);
+    if (!table_str){
+      goto invalid_command;
+    }
+    char* name_str = strtok(NULL, delims);
+    if (!name_str){
+      goto invalid_command;
+    }
+    char* value_str = strtok(NULL, delims);
+    if (!value_str){
+      goto invalid_command;
+    }
+    int value = atoi(value_str);
+    noroc(S, table_str, name_str, value, out);
+  }
+  else if (strcmp(cmd_name, "ghinion") == 0){
+    char* table_str = strtok(NULL, delims);
+    if (!table_str){
+      goto invalid_command;
+    }
+    char* name_str = strtok(NULL, delims);
+    if (!name_str){
+      goto invalid_command;
+    }
+    char* value_str = strtok(NULL, delims);
+    if (!value_str){
+      goto invalid_command;
+    }
+    int value = atoi(value_str);
+    ghinion(S, table_str, name_str, value, out);
   }
   else{
     goto invalid_command;
