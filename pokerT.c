@@ -152,6 +152,33 @@ Jucator findPlayer(Masa M, char* x){
   return aux;
 }
 
+void delPlayer(Masa* M, Jucator J){
+  TLista L = (*M)->jucatori;
+
+  for (; ; L = L->urm){
+    if (strcmp(((Jucator)(L->urm->info))->nume, J->nume) == 0){
+      L->urm = L->urm->urm;
+      break;
+    }
+  }
+}
+
+void delTable(Sala* S, Masa M){
+  TLista L = (*S)->masa;
+
+  if (strcmp(((Masa)(L->info))->numeMasa, M->numeMasa) == 0){
+    (*S)->masa = L->urm;
+    return;
+  }
+
+  for (; ; L = L->urm){
+    if (strcmp(((Masa)(L->urm->info))->numeMasa, M->numeMasa) == 0){
+      L->urm = L->urm->urm;
+      break;
+    }
+  }
+}
+
 void noroc(Sala S, char* table, char* name, int value, FILE* out){
   Masa M = findTable(S, table);
   if (M == NULL){
@@ -182,6 +209,16 @@ void ghinion(Sala S, char* table, char* name, int value, FILE* out){
   }
 
   J->nrMaini -= value;
+
+  if (J->nrMaini <= 0){
+    delPlayer(&M, J);
+    M->nrCrtJucatori--;
+  }
+
+  if (M->nrCrtJucatori <= 0){
+    delTable(&S, M);
+    S->nrMese--;
+  }
 }
 
 void parseCommand(char* cmd, Sala S, FILE* out){
