@@ -213,11 +213,59 @@ void ghinion(Sala S, char* table, char* name, int value, FILE* out){
   if (J->nrMaini <= 0){
     delPlayer(&M, J);
     M->nrCrtJucatori--;
+    S->nrLocCrt--;
   }
 
   if (M->nrCrtJucatori <= 0){
     delTable(&S, M);
     S->nrMese--;
+  }
+}
+
+void tura(Sala S, char* table, FILE* out){
+  Jucator J = NULL;
+  Masa M = findTable(S, table);
+  if (M == NULL){
+    fprintf(out, "Masa %s nu exista!\n", table);
+    exit(1);
+  }
+
+  TLista L = M->jucatori;
+  TLista u = NULL;
+  TLista n = L->urm;
+
+  for (u = L->urm; u->urm != L; u = u->urm);
+
+  u->urm = n;
+  L->urm = n->urm;
+  n->urm = L;
+
+  for (u = L->urm; u != L; u = u->urm){
+    J = ((Jucator)(u->info));
+    J->nrMaini--;
+
+    if (J->nrMaini <= 0){
+      delPlayer(&M, J);
+      M->nrCrtJucatori--;
+      S->nrLocCrt--;
+
+      if (M->nrCrtJucatori <= 0){
+        delTable(&S, M);
+        S->nrMese--;
+      }
+    }
+
+  }
+}
+
+void turaCompleta(Sala S, FILE* out){
+  TLista L = S->masa;
+  TLista p = NULL;
+  Masa M = NULL;
+
+  for (p = L; p != NULL; p = p->urm){
+    M = ((Masa)(p->info));
+    tura(S, M->numeMasa, out);
   }
 }
 
@@ -263,6 +311,16 @@ void parseCommand(char* cmd, Sala S, FILE* out){
     }
     int value = atoi(value_str);
     ghinion(S, table_str, name_str, value, out);
+  }
+  else if (strcmp(cmd_name, "tura") == 0){
+    char* table_str = strtok(NULL, delims);
+    if (!table_str){
+      goto invalid_command;
+    }
+    tura(S, table_str, out);
+  }
+  else if (strcmp(cmd_name, "tura_completa") == 0){
+    turaCompleta(S, out);
   }
   else{
     goto invalid_command;
