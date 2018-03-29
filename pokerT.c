@@ -269,6 +269,60 @@ void turaCompleta(Sala S, FILE* out){
   }
 }
 
+void inchide(Sala S, char* table, FILE* out){
+  Masa M = findTable(S, table);
+  //Masa mL = NULL;
+  TLista L = NULL, u = NULL;
+  TLista p = NULL, aux = NULL, q = NULL;
+  Jucator J = NULL;
+  int x, i;
+
+  if (M->nrCrtJucatori >= (S->nrLocMax - S->nrLocCrt)){
+    fprintf(out, "Nu exista suficiente locuri in sala!\n");
+    exit(1);
+  }
+
+  p = M->jucatori;
+
+  for (L = S->masa; L != NULL; L = L->urm){
+    if (strcmp(((Masa)(L->info))->numeMasa, table) == 0){
+      continue;
+    }
+
+    x = ((Masa)L->info)->nrMaxJucatori - ((Masa)L->info)->nrCrtJucatori;
+
+    if (x > 0){
+
+      //parcurgere ca sa aflu ultimul jucator de la masa la care vreau sa inserez
+      //p = M->jucatori; //era ((Masa)(M->info))->jucatori inainte
+      q = ((Masa)(L->info))->jucatori;
+      for (u = q->urm; u->urm != q; u = u->urm);
+
+      for (i = 0; x > 0 && M->nrCrtJucatori > 0; i++){
+        //printf("OHYEAH!%d",M->nrCrtJucatori);
+        J = (Jucator)(p->urm->info);
+
+        aux = AlocCelula((void*) J, sizeof(struct jucator));
+        if (!aux) printf("Alocare nereusita");
+        u->urm = aux;
+        aux->urm = q;
+        u = u->urm;
+
+        //delPlayer(&M, J);
+
+        M->nrCrtJucatori--;
+        x--;
+        ((Masa)(L->info))->nrCrtJucatori++;
+        //printf("%d ", ((Masa)L->info)->nrCrtJucatori);
+        p = p->urm;
+      }
+    }
+  }
+
+  delTable(&S, M);
+  S->nrMese--;
+}
+
 void parseCommand(char* cmd, Sala S, FILE* out){
   const char* delims = " \n";
 
@@ -321,6 +375,13 @@ void parseCommand(char* cmd, Sala S, FILE* out){
   }
   else if (strcmp(cmd_name, "tura_completa") == 0){
     turaCompleta(S, out);
+  }
+  else if (strcmp(cmd_name, "inchide") == 0){
+    char* table_str = strtok(NULL, delims);
+    if (!table_str){
+      goto invalid_command;
+    }
+    inchide(S, table_str, out);
   }
   else{
     goto invalid_command;
