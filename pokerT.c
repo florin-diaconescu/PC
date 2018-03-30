@@ -364,7 +364,7 @@ void clasament(Sala S, char* table, FILE* out){
       curMaxValue = value;
     }
     else if (value == curMaxValue){
-      if (strcmp(((Jucator)(u->info))->nume, ins->nume) < 0){
+      if (strcmp(((Jucator)(u->info))->nume, ins->nume) > 0){
         ins->nume = ((Jucator)(u->info))->nume;
       }
     }
@@ -392,7 +392,7 @@ void clasament(Sala S, char* table, FILE* out){
       }
       else if ((value == curMaxValue) && (curMaxValue != lastMaxVal)){
         if ((strcmp(((Jucator)(u->info))->nume, ins->nume)) > 0){
-          printf("%s %s\n", table, ins->nume);
+          //printf("%s %s\n", table, ins->nume);
           ins->nume = ((Jucator)(u->info))->nume;
           ins->nrMaini = value;
         }
