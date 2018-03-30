@@ -109,6 +109,10 @@ void afisareSala(Sala S, FILE* out){
   Masa M;
   TLista L = S->masa; //
 
+  if (S->nrMese == 0){
+    fprintf(out, "Sala este inchisa!\n");
+  }
+
   for (i = 0; i < S->nrMese; i++){
     M = (Masa)L->info; //M = (Masa)S->masa->info;
     fprintf(out, "%s: ", M->numeMasa);
@@ -183,13 +187,13 @@ void noroc(Sala S, char* table, char* name, int value, FILE* out){
   Masa M = findTable(S, table);
   if (M == NULL){
     fprintf(out, "Masa %s nu exista!\n", table);
-    exit(1);
+    return;
   }
 
   Jucator J = findPlayer(M, name);
   if (J == NULL){
     fprintf(out, "Jucatorul %s nu exista la masa %s!\n", name, table);
-    exit(1);
+    return;
   }
 
   J->nrMaini += value;
@@ -199,26 +203,27 @@ void ghinion(Sala S, char* table, char* name, int value, FILE* out){
   Masa M = findTable(S, table);
   if (M == NULL){
     fprintf(out, "Masa %s nu exista!\n", table);
-    exit(1);
+    return;
   }
 
   Jucator J = findPlayer(M, name);
   if (J == NULL){
     fprintf(out, "Jucatorul %s nu exista la masa %s!\n", name, table);
-    exit(1);
+    return;
   }
 
   J->nrMaini -= value;
 
   if (J->nrMaini <= 0){
-    delPlayer(&M, J);
     M->nrCrtJucatori--;
     S->nrLocCrt--;
+    delPlayer(&M, J);
   }
 
   if (M->nrCrtJucatori <= 0){
-    delTable(&S, M);
     S->nrMese--;
+    S->nrLocMax -= M->nrMaxJucatori;
+    delTable(&S, M);
   }
 }
 
@@ -227,7 +232,7 @@ void tura(Sala S, char* table, FILE* out){
   Masa M = findTable(S, table);
   if (M == NULL){
     fprintf(out, "Masa %s nu exista!\n", table);
-    exit(1);
+    return;
   }
 
   TLista L = M->jucatori;
@@ -245,13 +250,14 @@ void tura(Sala S, char* table, FILE* out){
     J->nrMaini--;
 
     if (J->nrMaini <= 0){
-      delPlayer(&M, J);
       M->nrCrtJucatori--;
       S->nrLocCrt--;
+      delPlayer(&M, J);
 
       if (M->nrCrtJucatori <= 0){
-        delTable(&S, M);
+        S->nrLocMax -= M->nrMaxJucatori;
         S->nrMese--;
+        delTable(&S, M);
       }
     }
 
@@ -273,7 +279,7 @@ void inchide(Sala S, char* table, FILE* out){
   Masa M = findTable(S, table);
   if (M == NULL){
     fprintf(out, "Masa %s nu exista!\n", table);
-    exit(1);
+    return;
   }
 
   //Masa mL = NULL;
@@ -282,11 +288,12 @@ void inchide(Sala S, char* table, FILE* out){
   Jucator J = NULL;
   int x, i;
 
-  if (M->nrCrtJucatori >= (S->nrLocMax - S->nrLocCrt)){
+  if (M->nrCrtJucatori > (S->nrLocMax - S->nrLocCrt)){
     fprintf(out, "Nu exista suficiente locuri in sala!\n");
-    exit(1);
+    return;
   }
 
+  S->nrLocMax -= M->nrMaxJucatori;
   p = M->jucatori;
 
   for (L = S->masa; L != NULL; L = L->urm){
@@ -316,6 +323,7 @@ void inchide(Sala S, char* table, FILE* out){
         //delPlayer(&M, J);
 
         M->nrCrtJucatori--;
+        S->nrLocCrt--;
         x--;
         ((Masa)(L->info))->nrCrtJucatori++;
         //printf("%d ", ((Masa)L->info)->nrCrtJucatori);
@@ -324,15 +332,16 @@ void inchide(Sala S, char* table, FILE* out){
     }
   }
 
-  delTable(&S, M);
+  S->nrLocMax -= M->nrMaxJucatori;
   S->nrMese--;
+  delTable(&S, M);
 }
 
 void clasament(Sala S, char* table, FILE* out){
   Masa M = findTable(S, table);
   if (M == NULL){
     fprintf(out, "Masa %s nu exista!\n", table);
-    exit(1);
+    return;
   }
 
   fprintf(out, "Clasament %s:\n", table);
@@ -341,11 +350,11 @@ void clasament(Sala S, char* table, FILE* out){
   TLista p = NULL; //lista de jucatori
   TLista u = NULL, aux = NULL, inc = NULL;
   Jucator ins = (Jucator) calloc(1, sizeof(struct jucator));
-  if (!ins) exit(1);
+  if (!ins) return;
 
   int count = 0, lastMaxVal = 0, curMaxValue = 0, value;
   char* last = calloc(1, NMAX);
-  if (!last) exit(1);
+  if (!last) return;
 
   inc = rez; //salvez inceputul listei
   ins->nume = (char*) calloc(1, NMAX);
@@ -448,9 +457,9 @@ void parseCommand(char* cmd, Sala S, FILE* out){
     if (!name_str){
       goto invalid_command;
     }
-    char* value_str = strtok(NULL, delims);
+    char* value_str = strtok(NULL, "\n");
     if (!value_str){
-      goto invalid_command;
+      value_str = "0";
     }
     int value = atoi(value_str);
     noroc(S, table_str, name_str, value, out);
@@ -503,7 +512,7 @@ void parseCommand(char* cmd, Sala S, FILE* out){
 
   invalid_command:
     printf("Invalid command: %s\n", cmd);
-    exit(1);
+    return;
 }
 
 int main(int argc, char* argv[]){
