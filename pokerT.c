@@ -271,6 +271,11 @@ void turaCompleta(Sala S, FILE* out){
 
 void inchide(Sala S, char* table, FILE* out){
   Masa M = findTable(S, table);
+  if (M == NULL){
+    fprintf(out, "Masa %s nu exista!\n", table);
+    exit(1);
+  }
+
   //Masa mL = NULL;
   TLista L = NULL, u = NULL;
   TLista p = NULL, aux = NULL, q = NULL;
@@ -321,6 +326,106 @@ void inchide(Sala S, char* table, FILE* out){
 
   delTable(&S, M);
   S->nrMese--;
+}
+
+void clasament(Sala S, char* table, FILE* out){
+  Masa M = findTable(S, table);
+  if (M == NULL){
+    fprintf(out, "Masa %s nu exista!\n", table);
+    exit(1);
+  }
+
+  fprintf(out, "Clasament %s:\n", table);
+
+  TLista rez = InitL();
+  TLista p = NULL; //lista de jucatori
+  TLista u = NULL, aux = NULL, inc = NULL;
+  Jucator ins = (Jucator) calloc(1, sizeof(struct jucator));
+  if (!ins) exit(1);
+
+  int count = 0, lastMaxVal = 0, curMaxValue = 0, value;
+  char* last = calloc(1, NMAX);
+  if (!last) exit(1);
+
+  inc = rez; //salvez inceputul listei
+  ins->nume = (char*) calloc(1, NMAX);
+
+  p = M->jucatori;
+  curMaxValue = ((Jucator)(p->urm->info))->nrMaini;
+  ins->nrMaini = curMaxValue;
+  ins->nume = ((Jucator)(p->urm->info))->nume;
+
+//fac o parcurgere pentru a determina valoarea maxima si a o insera in lista rez
+  for (u = p->urm; u != p; u = u->urm){
+    value = ((Jucator)(u->info))->nrMaini;
+    if (value > curMaxValue){
+      ins->nrMaini = value;
+      ins->nume = ((Jucator)(u->info))->nume;
+      curMaxValue = value;
+    }
+    else if (value == curMaxValue){
+      if (strcmp(((Jucator)(u->info))->nume, ins->nume) < 0){
+        ins->nume = ((Jucator)(u->info))->nume;
+      }
+    }
+  }
+  //printf("%s %d\n", ins->nume, ins->nrMaini);
+
+  aux = AlocCelula((void*) ins, sizeof(struct jucator));
+  rez->urm = aux;
+  aux->urm = inc;
+  rez = rez->urm;
+  count++;
+
+  while (count < M->nrCrtJucatori){
+    lastMaxVal = curMaxValue;
+    curMaxValue = 0;
+    last = ins->nume;
+
+    for (u = p->urm; u != p; u = u->urm){
+      value = ((Jucator)(u->info))->nrMaini;
+      //printf("%d ", M->nrCrtJucatori);
+      if ((value < lastMaxVal) && (value > curMaxValue)){
+        curMaxValue = value;
+        ins->nrMaini = value;
+        ins->nume = ((Jucator)(u->info))->nume;
+      }
+      else if ((value == curMaxValue) && (curMaxValue != lastMaxVal)){
+        if ((strcmp(((Jucator)(u->info))->nume, ins->nume)) > 0){
+          printf("%s %s\n", table, ins->nume);
+          ins->nume = ((Jucator)(u->info))->nume;
+          ins->nrMaini = value;
+        }
+      }
+      else if (value == lastMaxVal){
+        if ((strcmp(((Jucator)(u->info))->nume, last)) < 0){
+          if (value == curMaxValue){
+            if ((strcmp(((Jucator)(u->info))->nume, ins->nume)) > 0){
+              //printf("%s %s\n", table, ins->nume);
+              //printf("%s %s\n", ((Jucator)(u->info))->nume, ins->nume);
+              ins->nume = ((Jucator)(u->info))->nume;
+              ins->nrMaini = value;
+            }
+          }
+          else{
+            ins->nume = ((Jucator)(u->info))->nume;
+            ins->nrMaini = value;
+            curMaxValue = value;
+          }
+        }
+      }
+    }
+    //printf("%s %s\n", table, ins->nume);
+    aux = AlocCelula((void*) ins, sizeof(struct jucator));
+    rez->urm = aux;
+    aux->urm = inc;
+    rez = rez->urm;
+    count++;
+  }
+
+  for (u = inc->urm; u != inc; u = u->urm){
+    fprintf(out, "%s %d\n", ((Jucator)(u->info))->nume, ((Jucator)(u->info))->nrMaini);
+  }
 }
 
 void parseCommand(char* cmd, Sala S, FILE* out){
@@ -382,6 +487,13 @@ void parseCommand(char* cmd, Sala S, FILE* out){
       goto invalid_command;
     }
     inchide(S, table_str, out);
+  }
+  else if (strcmp(cmd_name, "clasament") == 0){
+    char* table_str = strtok(NULL, delims);
+    if (!table_str){
+      goto invalid_command;
+    }
+    clasament(S, table_str, out);
   }
   else{
     goto invalid_command;
