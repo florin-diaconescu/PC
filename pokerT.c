@@ -217,6 +217,7 @@ void ghinion(Sala S, char* table, char* name, int value, FILE* out){
   if (J->nrMaini <= 0){
     M->nrCrtJucatori--;
     S->nrLocCrt--;
+    //printf("ghinion %d\n", S->nrLocCrt);
     delPlayer(&M, J);
   }
 
@@ -288,15 +289,16 @@ void inchide(Sala S, char* table, FILE* out){
   Jucator J = NULL;
   int x, i;
 
-  if (M->nrCrtJucatori > (S->nrLocMax - S->nrLocCrt)){
+  //S->nrLocCrt -= M->nrCrtJucatori;
+  if (S->nrLocCrt > (S->nrLocMax - M->nrMaxJucatori)){
     fprintf(out, "Nu exista suficiente locuri in sala!\n");
     return;
   }
 
-  S->nrLocMax -= M->nrMaxJucatori;
+  //S->nrLocMax -= M->nrMaxJucatori;
   p = M->jucatori;
 
-  for (L = S->masa; L != NULL; L = L->urm){
+  for (L = S->masa; L != NULL && M->nrCrtJucatori > 0; L = L->urm){
     if (strcmp(((Masa)(L->info))->numeMasa, table) == 0){
       continue;
     }
@@ -323,7 +325,7 @@ void inchide(Sala S, char* table, FILE* out){
         //delPlayer(&M, J);
 
         M->nrCrtJucatori--;
-        S->nrLocCrt--;
+        //S->nrLocCrt--;
         x--;
         ((Masa)(L->info))->nrCrtJucatori++;
         //printf("%d ", ((Masa)L->info)->nrCrtJucatori);
