@@ -5,6 +5,22 @@
 
 #define NMAX 50
 
+void DistrugeMasa(TLista L){
+  Masa M = ((Masa)((L)->info));
+  TLista J = M->jucatori;
+  TLista p = J->urm, aux;
+  free(M->numeMasa);
+
+  while (p != J){
+    aux = p;
+    p = p->urm;
+    free(((Jucator)(aux->info))->nume);
+    free (aux->info);
+    free(aux);
+  }
+  free(J);
+}
+
 TLista InitL(){
   TLista aux;
   aux = (TLista) malloc(sizeof(Celula));
@@ -67,6 +83,7 @@ Sala ReadCFG(FILE* config){
         p = p->urm;
       }
 
+      //free(M->jucatori);
       inc = M->jucatori;
 
       for (j = 0; j < M->nrCrtJucatori; j++){
@@ -81,7 +98,12 @@ Sala ReadCFG(FILE* config){
         M->jucatori->urm = aux;
         aux->urm = inc;
         M->jucatori = M->jucatori->urm;
+
+        //free(J->nume);
+        free(J);
       }
+      //free(inc);
+      free(M);
     }
 
     return S;
@@ -158,10 +180,15 @@ Jucator findPlayer(Masa M, char* x){
 
 void delPlayer(Masa* M, Jucator J){
   TLista L = (*M)->jucatori;
+  TLista aux;
 
   for (; ; L = L->urm){
     if (strcmp(((Jucator)(L->urm->info))->nume, J->nume) == 0){
+      free(((Jucator)(L->urm->info))->nume);
+      free((Jucator)(L->urm->info));
+      aux = L->urm;
       L->urm = L->urm->urm;
+      free(aux);
       break;
     }
   }
@@ -169,6 +196,7 @@ void delPlayer(Masa* M, Jucator J){
 
 void delTable(Sala* S, Masa M){
   TLista L = (*S)->masa;
+  TLista aux;
 
   if (strcmp(((Masa)(L->info))->numeMasa, M->numeMasa) == 0){
     (*S)->masa = L->urm;
@@ -177,7 +205,16 @@ void delTable(Sala* S, Masa M){
 
   for (; ; L = L->urm){
     if (strcmp(((Masa)(L->urm->info))->numeMasa, M->numeMasa) == 0){
+      //free(((Jucator)(((Masa)(L->urm->info))->jucatori->info))->nume);
+      //free(((Jucator)(((Masa)(L->urm->info))->jucatori->info)));
+      free(((Masa)(L->urm->info))->numeMasa);
+      free(((Masa)(L->urm->info))->jucatori);
+
+      //((Masa)(L->urm->info))->jucatori = NULL;
+      free((Masa)(L->urm->info));
+      aux = L->urm;
       L->urm = L->urm->urm;
+      free(aux);
       break;
     }
   }
@@ -538,12 +575,22 @@ int main(int argc, char* argv[]){
   char* line = NULL;
   size_t len;
 
-  Sala S = (Sala) malloc(sizeof(Sala));
+  Sala S;
 
   S = ReadCFG(config);
 
   while ((read = getline(&line, &len, events)) != -1){
     parseCommand(line, S, out);
+  }
+
+  TLista aux, p = S->masa;
+  while(p != NULL){
+    aux = p;
+    p = p->urm;
+    DistrugeMasa(aux);
+    free((Masa)(aux->info));
+    free(aux);
+
   }
 
   free(S);
