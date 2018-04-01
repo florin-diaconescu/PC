@@ -199,22 +199,29 @@ void delTable(Sala* S, Masa M){
   TLista aux;
 
   if (strcmp(((Masa)(L->info))->numeMasa, M->numeMasa) == 0){
-    (*S)->masa = L->urm;
+    free(((Masa)(L->info))->jucatori);
+    
+    aux = (*S)->masa;
+    (*S)->masa = aux->urm;
+
+    free(((Masa)(aux->info))->numeMasa);
+    free((Masa)(aux->info));
+    free(aux);
+
     return;
   }
 
   for (; ; L = L->urm){
     if (strcmp(((Masa)(L->urm->info))->numeMasa, M->numeMasa) == 0){
-      //free(((Jucator)(((Masa)(L->urm->info))->jucatori->info))->nume);
-      //free(((Jucator)(((Masa)(L->urm->info))->jucatori->info)));
-      free(((Masa)(L->urm->info))->numeMasa);
       free(((Masa)(L->urm->info))->jucatori);
 
-      //((Masa)(L->urm->info))->jucatori = NULL;
+      free(((Masa)(L->urm->info))->numeMasa);
       free((Masa)(L->urm->info));
+
       aux = L->urm;
       L->urm = L->urm->urm;
       free(aux);
+
       break;
     }
   }
@@ -256,13 +263,13 @@ void ghinion(Sala S, char* table, char* name, int value, FILE* out){
     S->nrLocCrt--;
     //printf("ghinion %d\n", S->nrLocCrt);
     delPlayer(&M, J);
-  }
 
   if (M->nrCrtJucatori <= 0){
     S->nrMese--;
     S->nrLocMax -= M->nrMaxJucatori;
     delTable(&S, M);
   }
+}
 }
 
 void tura(Sala S, char* table, FILE* out){
