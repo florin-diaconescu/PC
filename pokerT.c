@@ -409,7 +409,7 @@ void inchide(Sala S, char* table, FILE* out){
   }
 
   TLista L = NULL, u = NULL;
-  TLista inc = NULL, aux = NULL, q = NULL;
+  TLista p = NULL, aux = NULL, q = NULL;
   Jucator J = NULL;
   int x, i;
 
